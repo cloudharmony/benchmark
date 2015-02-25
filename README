@@ -1,0 +1,4 @@
+CloudHarmony Benchmark Repository
+
+This repository contains common source files for benchmark harnesses. It is 
+included as a sub-module in each benchmark harness.
