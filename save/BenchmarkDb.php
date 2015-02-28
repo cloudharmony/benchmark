@@ -241,7 +241,7 @@ class BenchmarkDb {
   public final function getSchema($table) {
     if (!isset($this->schemas[$table])) {
       $this->schemas[$table] = array();
-      $files = array(sprintf('%s/schema/common.json', dirname(dirname(__FILE__))), sprintf('%s/schema/%s.json', dirname(dirname(__FILE__)), $table));
+      $files = array(sprintf('%s/schema/common.json', dirname(dirname(dirname(__FILE__)))), sprintf('%s/schema/%s.json', dirname(dirname(dirname(__FILE__))), $table));
       foreach($files as $file) {
         if (file_exists($file)) {
           foreach(json_decode(file_get_contents($file), TRUE) as $col) {
