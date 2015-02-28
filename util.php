@@ -399,6 +399,30 @@ function get_hostname($url) {
 }
 
 /**
+ * returns a hash with the following keys representing Java version 
+ * information (using java -verison):
+ *   version => the version identifier
+ *   vendor => the Java software vendor: OpenJDK, Oracle or IBM
+ * @return array
+ */
+function get_java_version() {
+  // get java version
+  $jversion = NULL;
+  $jvendor = NULL;
+  foreach(explode("\n", shell_exec('java -version 2>&1')) as $line) {
+    if (preg_match('/"([0-9\._]+)"/', trim($line), $m)) $jversion = $m[1];
+    else if (!$jvendor && preg_match('/openjdk/i', trim($line))) $jvendor = 'OpenJDK';
+    else if (!$jvendor && preg_match('/hotspot/i', trim($line))) $jvendor = 'Oracle';
+    else if (!$jvendor && preg_match('/ibm/i', trim($line))) $jvendor = 'IBM';
+  }
+  if ($jversion) {
+    $this->options['java_version'] = sprintf('%s%s', $jvendor ? $jvendor . ' ' : '', $jversion);
+    print_msg(sprintf('Set java_version=%s', $this->options['java_version']), isset($this->options['verbose']), __FILE__, __LINE__);
+  }
+  return array('version' => $jversion, 'vendor' => $jvendor);
+}
+
+/**
  * returns the arithmetic mean value from an array of points
  * @param array $points an array of numeric data points
  * @param int $round desired rounding precision, default is 4
