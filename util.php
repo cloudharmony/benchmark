@@ -358,13 +358,16 @@ function get_benchmark_ini() {
 }
 
 /**
- * returns the free space in MB on the volume containing $dir
- * @param string $dir the directory to return volume free space for
+ * returns the free space in MB for the directory or device specified by $dir
+ * @param string $dir directory or device path to return free space for
  * @return float
  */
 function get_free_space($dir) {
   $free = NULL;
-  if (is_dir($dir)) {
+  if (preg_match('/^\/dev/', $dir) && file_exists($sfile = sprintf('/sys/class/block/%s/size', basename($dir)))) {
+    $free = ((trim(file_get_contents($sfile))*512)/1024)/1024;
+  }
+  else if (is_dir($dir)) {
   	$stats = array();
   	$dfm = shell_exec('df -m');
   	foreach(explode("\n", $dfm) as $line) {
@@ -765,6 +768,38 @@ function run_time() {
 }
 
 /**
+ * returns a numeric value representing megabytes expresses in $expr. The 
+ * following value suffixes are supported (not case-sensitive): B, KB, MB, GB, 
+ * TB. If not suffix, bytes will be assumed
+ * @param string $expr the expression to return the size for
+ * @return float
+ */
+function size_from_string($expr) {
+  $mb = NULL;
+  if (preg_match('/^([0-9\.]+)\s*([kmgtb]+)$/i', trim($expr), $m)) {
+    switch(strtoupper(strtolower($m[2]))) {
+      case 'TB':
+        $mb = ($m[1]*1024)*1024;
+        break;
+      case 'GB':
+        $mb = $m[1]*1024;
+        break;
+      case 'MB':
+        $mb = $m[1]*1;
+        break;
+      case 'KB':
+        $mb = $m[1]/1024;
+        break;
+      default:
+        $mb = ($m[1]/1024)/1024;
+        break;
+    }
+  }
+  else if (is_numeric($expr)) $mb = ($expr/1024)/1024;
+  return $mb;
+}
+
+/**
  * this function parses key/value pairs in the string $blob. the return value
  * is a hash the corresponding key/value pairs. empty lines, or lines 
  * beginning with ; or # are ignored. for lines without an = character, the 
@@ -854,7 +889,7 @@ function trim_points($points, $bottom=NULL, $top=NULL) {
  * returns an array containing those commands that are not valid or an empty
  * array if they are all valid
  * @param array $dependencies the cli commands to validate. this is a hash 
- * indexed by command where the valid is the package name
+ * indexed by command where the value is the package name
  * @return array
  */
 function validate_dependencies($dependencies) {
@@ -883,6 +918,7 @@ function validate_dependencies($dependencies) {
  *   required: argument is required
  *   url:      argument is a URL
  *   write:    argument is in the file system path and writeable
+ *   writedir: same as write but parent directory should be writable
  * @return array
  */
 function validate_options($options, $validate) {
@@ -912,6 +948,11 @@ function validate_options($options, $validate) {
             break;
           case 'write':
             if ($val && !file_exists($val)) $err = sprintf('%s is not a valid path', $val);
+            else if ($val && !is_writable($val)) $err = sprintf('%s is not writable', $val);
+            break;
+          case 'writedir':
+            $val = is_dir($val) ? $val : dirname($val);
+            if ($val && !is_dir($val)) $err = sprintf('%s is not a valid directory', $val);
             else if ($val && !is_writable($val)) $err = sprintf('%s is not writable', $val);
             break;
           case 'url':
