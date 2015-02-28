@@ -415,11 +415,7 @@ function get_java_version() {
     else if (!$jvendor && preg_match('/hotspot/i', trim($line))) $jvendor = 'Oracle';
     else if (!$jvendor && preg_match('/ibm/i', trim($line))) $jvendor = 'IBM';
   }
-  if ($jversion) {
-    $this->options['java_version'] = sprintf('%s%s', $jvendor ? $jvendor . ' ' : '', $jversion);
-    print_msg(sprintf('Set java_version=%s', $this->options['java_version']), isset($this->options['verbose']), __FILE__, __LINE__);
-  }
-  return array('version' => $jversion, 'vendor' => $jvendor);
+  return $jversion && $jvendor ? array('version' => $jversion, 'vendor' => $jvendor) : NULL;
 }
 
 /**
@@ -480,7 +476,7 @@ function get_mime_type($file) {
  * @param boolean $lowerIsBetter TRUE if a lower value is better
  * @return float
  */
-function get_percentile($values, $percentile, $lowerIsBetter=FALSE) {
+function get_percentile($values, $percentile=50, $lowerIsBetter=FALSE) {
   $val = NULL;
 	if (is_array($values) && $percentile >= 1 && $percentile < 100) {
 		$lowerIsBetter ? rsort($values) : sort($values);
