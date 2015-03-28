@@ -129,7 +129,7 @@ function ch_curl($url, $method='HEAD', $headers=NULL, $file=NULL, $auth=NULL, $s
   if (($method == 'POST' || $method == 'PUT') && file_exists($file)) {
     $curl .= sprintf(' --data-binary @%s', $file);
     if (!isset($headers['Content-Length']) && !isset($headers['content-length'])) $curl .= sprintf(' -H "Content-Length:%d"', filesize($file));
-    if (!isset($headers['Content-Type']) && !isset($headers['content-type'])) $curl .= sprintf(' -H "Content-Type:%d"', get_mime_type($file));
+    if (!isset($headers['Content-Type']) && !isset($headers['content-type'])) $curl .= sprintf(' -H "Content-Type:%s"', get_mime_type($file));
   }
   $curl .= sprintf(' "%s"', $url);
   $ok = array();
