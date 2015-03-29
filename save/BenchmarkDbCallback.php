@@ -77,6 +77,7 @@ class BenchmarkDbCallback extends BenchmarkDb {
    */
   protected function importCsv($table, $csv, $schema) {
     $imported = FALSE;
+    if (!isset($this->benchmarkIni)) $this->benchmarkIni = get_benchmark_ini();
     $benchmarkId = isset($this->benchmarkIni['meta-id']) ? $this->benchmarkIni['meta-id'] : NULL;
     $benchmarkVersion = isset($this->benchmarkIni['meta-version']) ? $this->benchmarkIni['meta-version'] : NULL;
     $db = isset($this->options['db_name']) ? $this->options['db_name'] : NULL;
