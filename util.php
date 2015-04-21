@@ -935,6 +935,7 @@ function validate_dependencies($dependencies) {
  *   min:      argument numeric and >= this value
  *   max:      argument numeric and <= this value
  *   option:   argument must be found in this value (array)
+ *   regex:    argument must match the provided regular expression
  *   required: argument is required
  *   url:      argument is a URL
  *   write:    argument is in the file system path and writeable
@@ -963,8 +964,11 @@ function validate_options($options, $validate) {
           case 'option':
             if ($val && !in_array($val, $cval)) $err = sprintf('%s must be one of the following: %s', $val, implode(', ', $cval));
             break;
+          case 'regex':
+            if ($val && !preg_match($val, $cval)) $err = sprintf('argument %s must match regular expression %s', $arg, $cval);
+            break;
           case 'required':
-            if ($val === NULL) $err = sprintf('argument is required', $arg);
+            if ($val === NULL) $err = sprintf('argument %s is required', $arg);
             break;
           case 'write':
             if ($val && !file_exists($val)) $err = sprintf('%s is not a valid path', $val);
