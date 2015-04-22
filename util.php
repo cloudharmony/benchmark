@@ -965,7 +965,7 @@ function validate_options($options, $validate) {
             if ($val && !in_array($val, $cval)) $err = sprintf('%s must be one of the following: %s', $val, implode(', ', $cval));
             break;
           case 'regex':
-            if ($val && !preg_match($val, $cval)) $err = sprintf('argument %s must match regular expression %s', $arg, $cval);
+            if ($val && !preg_match($cval, $val)) $err = sprintf('argument %s must match regular expression %s', $arg, $cval);
             break;
           case 'required':
             if ($val === NULL) $err = sprintf('argument %s is required', $arg);
