@@ -498,7 +498,7 @@ function get_percentile($values, $percentile=50, $lowerIsBetter=FALSE) {
 function get_prefixed_params($prefix) {
   $params = array();
 	foreach(string_to_hash(shell_exec('env')) as $key => $val) {
-		if (preg_match('/^bm_param_' . $prefix . '(.*)$/', $key, $m)) $params[$m[1]] = trim($val) ? trim($val) : TRUE;
+		if (preg_match('/^bm_param_' . $prefix . '(.*)$/', $key, $m)) $params[$m[1]] = strlen(trim($val)) ? trim($val) : TRUE;
 	}
   foreach($_SERVER['argv'] as $arg) {
     if (preg_match('/^\-\-' . $prefix . '(.*)$/', $arg, $m)) {
@@ -730,7 +730,7 @@ function parse_args($opts, $arrayArgs=NULL, $paramPrefix='') {
    }
    // check for environment variable
    if (!isset($options[$key]) && preg_match('/^meta_/', $key) && getenv('bm_' . str_replace('meta_', '', $key)) !== FALSE) $options[$key] = getenv('bm_' . str_replace('meta_', '', $key));
-   if (!isset($options[$key]) && getenv("bm_param_${paramPrefix}${key}") !== FALSE) $options[$key] = getenv("bm_param_${paramPrefix}${key}");
+   if (getenv("bm_param_${paramPrefix}${key}") !== FALSE) $options[$key] = getenv("bm_param_${paramPrefix}${key}");
    // convert booleans
    if (isset($options[$key]) && !strpos($long, ':')) $options[$key] = $options[$key] === '0' ? FALSE : TRUE;
    // set array parameters
