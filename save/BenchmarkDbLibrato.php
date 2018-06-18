@@ -166,7 +166,7 @@ class BenchmarkDbLibrato extends BenchmarkDb {
         $metrics = (isset($request['counters']) ? count($request['counters']) : 0) + (isset($request['gauges']) ? count($request['gauges']) : 0);
         fwrite($fp, json_encode($request));
         fclose($fp);
-        $curl = ch_curl(self::LIBRATO_METRICS_API_URL, 'POST', array('Content-Type' => 'application/json'), $file, sprintf('%s:%s', $this->options['db_user'], $this->options['db_pswd']));
+        $curl = ch_curl(self::LIBRATO_METRICS_API_URL, 'POST', array('Content-Type' => 'application/json'), $file, sprintf('%s:%s', $this->options['db_user'], $this->options['db_pswd']), '200-299', FALSE, TRUE);
         
         // API response
         if ($curl === NULL) print_msg(sprintf('Librato API POST request to %s failed - unknown error', self::LIBRATO_METRICS_API_URL), isset($this->options['verbose']), __FILE__, __LINE__, TRUE);
@@ -255,7 +255,7 @@ class BenchmarkDbLibrato extends BenchmarkDb {
       
       if ($this->valid) {        
         // validate credentials using GET request
-        $curl = ch_curl(self::LIBRATO_METRICS_API_URL, 'GET', NULL, NULL, sprintf('%s:%s', $this->options['db_user'], $this->options['db_pswd']), '200-299', TRUE);
+        $curl = ch_curl(self::LIBRATO_METRICS_API_URL, 'GET', NULL, NULL, sprintf('%s:%s', $this->options['db_user'], $this->options['db_pswd']), '200-299', TRUE, TRUE);
         $this->valid = ($response = json_decode($curl, TRUE)) ? TRUE : FALSE;
         if ($curl === NULL) print_msg(sprintf('Librato API GET request to %s failed', self::LIBRATO_METRICS_API_URL), isset($this->options['verbose']), __FILE__, __LINE__, TRUE);
         else if ($curl === FALSE) print_msg(sprintf('Librato API GET request to %s resulted in non 200 response code - API credentials may be invalid', self::LIBRATO_METRICS_API_URL), isset($this->options['verbose']), __FILE__, __LINE__, TRUE);

@@ -112,15 +112,16 @@ function ch_collectd_rrd_stop($dir, $saveTo, $verbose) {
  * separated list of values or ranges (e.g. "200,404" or "200-299,404")
  * @param boolean $retBody whether or not to return the response body. If 
  * FALSE (default), the status code is returned
+ * @param boolean $tls12 if TRUE, forces use of TLS1.2
  * @return mixed
  */
-function ch_curl($url, $method='HEAD', $headers=NULL, $file=NULL, $auth=NULL, $success='200-299', $retBody=FALSE) {
+function ch_curl($url, $method='HEAD', $headers=NULL, $file=NULL, $auth=NULL, $success='200-299', $retBody=FALSE, $tls12=FALSE) {
   global $ch_curl_options;
   if (!isset($ch_curl_options)) $ch_curl_options = parse_args(array('v' => 'verbose'));
   
   if (!is_array($headers)) $headers = array();
   $ofile = $retBody ? '/tmp/' . rand() : '/dev/null';
-  $curl = sprintf('curl -s -X %s%s -w "%s\n" -o %s', $method, $method == 'HEAD' ? ' -I' : '', '%{http_code}', $ofile);
+  $curl = sprintf('curl%s -s -X %s%s -w "%s\n" -o %s', $tls12 && preg_match('/^https/', $url) ? ' --tlsv1.2' : '', $method, $method == 'HEAD' ? ' -I' : '', '%{http_code}', $ofile);
   if ($auth) $curl .= sprintf(' -u "%s"', $auth);
   if (is_array($headers)) {
     foreach($headers as $header => $val) $curl .= sprintf(' -H "%s%s"', is_numeric($header) ? '' : $header . ':', $val); 
