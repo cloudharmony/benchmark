@@ -76,6 +76,12 @@ class BenchmarkDb {
   protected $writeCsv = TRUE;
   
   /**
+   * if set to TRUE by implementing classes, then quotes will be stripped
+   * from CSV values and any commas in values wil be replaced with a pipe
+   */
+  protected $stripCsvQuotes = FALSE;
+  
+  /**
    * Constructor is protected to implement the singleton pattern using 
    * the BenchmarkDb::getDb static method
    * @param array $options db command line arguments
@@ -335,7 +341,8 @@ class BenchmarkDb {
         foreach($this->rows[$table] as $row) {
           foreach(array_keys($schema) as $i => $col) {
             if ($schema[$col]['type'] != 'index') {
-              fwrite($fp, sprintf('%s%s', $i > 0 ? ',' : '', isset($row[$col]) ? (strpos($row[$col], ',') ? '"' . str_replace('"', '\"', $row[$col]) . '"' : $row[$col]) : ''));
+			  if ($this->stripCsvQuotes && isset($row[$col]) && is_string($row[$col]) && strpos($row[$col], ',') !== FALSE) $row[$col] = str_replace(',', '|', $row[$col]);
+              fwrite($fp, sprintf('%s%s', $i > 0 ? ',' : '', isset($row[$col]) ? (strpos($row[$col], ',') !== FALSE ? '"' . str_replace('"', '\"', $row[$col]) . '"' : $row[$col]) : ''));
             }
           }
           fwrite($fp, "\n");
